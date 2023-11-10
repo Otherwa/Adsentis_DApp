@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from bson import ObjectId
+import tensorflow as tf
 import streamlit as st
 from tensorflow.keras.preprocessing import image
 import numpy as np
@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from streamlit_extras.let_it_rain import rain
 
 load_dotenv()
+
 
 # Define the label with which you want to classify
 custom_class_labels = [
@@ -63,14 +64,20 @@ def preprocess_image(img):
 
 
 # ! Call back issue
+@tf.function
 def predict_image(model, img_array):
     with st.spinner("* Wait for it..."):
-        return model.predict(img_array)
+        return model(img_array)
 
 
 def display_results(img, predicted_class_label, confidence):
     with st.status("* Predictions", expanded=True):
-        st.image(img, caption="Uploaded Image", width=500)
+        st.image(
+            img,
+            caption="Uploaded Image",
+            output_format="PNG",
+            use_column_width="always",
+        )
         st.subheader("Prediction:")
         st.info(f"Predicted class label: {predicted_class_label}")
         st.warning(f"Prediction Confidence: {confidence:.2%}")
@@ -83,6 +90,7 @@ def save_to_mongodb(img_base64, predicted_class_label, confidence):
     if st.button("Was the response successful? Click 'Yes' to confirm."):
         # Save to MongoDB
         save_to_mongodb_impl(img_base64, predicted_class_label, confidence)
+        # Update session state to indicate that the button has been clicked
 
 
 def save_to_mongodb_impl(img_base64, predicted_class_label, confidence):
@@ -98,7 +106,7 @@ def save_to_mongodb_impl(img_base64, predicted_class_label, confidence):
             {
                 "image": img_base64,
                 "predicted_class_label": predicted_class_label,
-                "confidence": confidence,
+                "confidence": float(confidence),
             }
         )
 
@@ -112,20 +120,21 @@ def save_to_mongodb_impl(img_base64, predicted_class_label, confidence):
 
 
 def main():
-    st.set_page_config(page_title="🤡 AdSenti", layout="wide")
-    st.header("🤡 AdSent")
+    st.set_page_config(page_title="🤡 AdSenti")
+    st.header("🤡 AdSenti")
     st.title("AdSenti (Image Sentiment Analysis)")
-    st.warning(
-        f"* Only 5 Emotions are classified as per now 'active', 'afraid', 'alaramed', 'amazed ', 'angry'"
-    )
-    st.error("* Note As per our Dataset")
+    # st.warning(
+    #     f"* Only 5 Emotions are classified as per now 'active', 'afraid', 'alaramed', 'amazed ', 'angry'"
+    # )
+    st.warning("* Note As per our Dataset")
     st.info("* Help us by testing your side of images for classifiaction")
-    model_path = "./config/model/Ads_Senti_Real_128bs_35ep.keras"
+    model_path = "./config/real_model/Ads_Senti_Real_128bs_35ep.keras"
     model = InitModel(model_path)
 
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
+        show_img = image.load_img(uploaded_file)
         img = image.load_img(uploaded_file, target_size=(224, 224))
         img_array = preprocess_image(img)
 
@@ -134,18 +143,19 @@ def main():
         predicted_class_index = np.argmax(predictions)
         predicted_class_label = custom_class_labels[predicted_class_index]
 
-        # Create a status container for dynamic updates
-        status_container = st.empty()
-
         # Display results and save to MongoDB
         display_results(
-            img, predicted_class_label, predictions[0][predicted_class_index]
+            show_img, predicted_class_label, predictions[0][predicted_class_index]
         )
+
+        # Extracting the numerical value
+        tensor_value = predictions[0][predicted_class_index]
+        numeric_value = tensor_value.numpy()
         img_base64 = base64.b64encode(uploaded_file.getvalue()).decode("utf-8")
         save_to_mongodb(
             img_base64,
             predicted_class_label,
-            str(predictions[0][predicted_class_index]),
+            str(numeric_value),
         )
 
 
