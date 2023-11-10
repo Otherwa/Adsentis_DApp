@@ -3,5 +3,5 @@ tensorflow
 pymongo
 numpy
 python-dotenv
-
+streamlit_extras
 
