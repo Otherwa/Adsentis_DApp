@@ -128,7 +128,7 @@ def main():
     # )
     st.warning("* Note As per our Dataset")
     st.info("* Help us by testing your side of images for classifiaction")
-    model_path = "./config/real_model/Ads_Senti_Real_128bs_35ep.keras"
+    model_path = "./config/model/Ads_Senti_Real_128bs_35ep.keras"
     model = InitModel(model_path)
 
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
