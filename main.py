@@ -12,40 +12,38 @@ from streamlit_extras.let_it_rain import rain
 load_dotenv()
 
 # Define the label with which you want to classify
-# custom_class_labels = [
-#     "alert",
-#     "afraid",
-#     "angry",
-#     "amused",
-#     "calm",
-#     "alarmed",
-#     "amazed",
-#     "cheerful",
-#     "active",
-#     "conscious",
-#     "creative",
-#     "educative",
-#     "grateful",
-#     "confident",
-#     "disturbed",
-#     "emotional",
-#     "fashionable",
-#     "empathetic",
-#     "feminine",
-#     "eager",
-#     "inspired",
-#     "jealous",
-#     "proud",
-#     "pessimistic",
-#     "manly",
-#     "sad",
-#     "persuaded",
-#     "loving",
-#     "youthful",
-#     "thrifty",
-# ]
-
-custom_class_labels = ["active", "afraid", "alaramed", "amazed ", "angry"]
+custom_class_labels = [
+    "alert",
+    "afraid",
+    "angry",
+    "amused",
+    "calm",
+    "alarmed",
+    "amazed",
+    "cheerful",
+    "active",
+    "conscious",
+    "creative",
+    "educative",
+    "grateful",
+    "confident",
+    "disturbed",
+    "emotional",
+    "fashionable",
+    "empathetic",
+    "feminine",
+    "eager",
+    "inspired",
+    "jealous",
+    "proud",
+    "pessimistic",
+    "manly",
+    "sad",
+    "persuaded",
+    "loving",
+    "youthful",
+    "thrifty",
+]
 
 
 @st.cache_data()
@@ -64,6 +62,7 @@ def preprocess_image(img):
         return img_array / 255.0
 
 
+# ! Call back issue
 def predict_image(model, img_array):
     with st.spinner("* Wait for it..."):
         return model.predict(img_array)
@@ -121,7 +120,7 @@ def main():
     )
     st.error("* Note As per our Dataset")
     st.info("* Help us by testing your side of images for classifiaction")
-    model_path = "./config/model/Ads_Senti_128bs_35ep.keras"
+    model_path = "./config/model/Ads_Senti_Real_128bs_35ep.keras"
     model = InitModel(model_path)
 
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
