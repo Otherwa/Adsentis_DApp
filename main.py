@@ -5,6 +5,7 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 from tensorflow.keras.models import load_model
 import base64
+import random
 import os
 from dotenv import load_dotenv
 from streamlit_extras.let_it_rain import rain
@@ -70,7 +71,7 @@ def predict_image(model, img_array):
         return model(img_array)
 
 
-def display_results(img, predicted_class_label, confidence):
+def display_results(img, predictions, custom_class_labels):
     with st.status("* Predictions", expanded=True):
         st.image(
             img,
@@ -78,9 +79,15 @@ def display_results(img, predicted_class_label, confidence):
             output_format="PNG",
             use_column_width="always",
         )
-        st.subheader("Prediction:")
-        st.info(f"Predicted class label: {predicted_class_label}")
-        st.warning(f"Prediction Confidence: {confidence:.2%}")
+        st.subheader("Top Predictions:")
+
+        # Combine and zip the two
+        zipped_data = list(zip(predictions, custom_class_labels))
+        # Sort by the probabilities in descending order
+        sorted_data = sorted(zipped_data, key=lambda x: x[0], reverse=True)
+        emojis = ['😊', '🌟', '🎉', '🐍', '🚀', '💻', '🤖', '🌈', '🍕', '🎸']
+        for pred, label in sorted_data[:6]:
+            st.warning(f"Class: {label} : {pred:.2%}", icon=random.choice(emojis))
 
 
 def save_to_mongodb(img_base64, predicted_class_label, confidence):
@@ -140,13 +147,11 @@ def main():
 
         predictions = predict_image(model, img_array)
 
+        # display results
+        display_results(show_img, predictions[0], custom_class_labels)
+
         predicted_class_index = np.argmax(predictions)
         predicted_class_label = custom_class_labels[predicted_class_index]
-
-        # Display results and save to MongoDB
-        display_results(
-            show_img, predicted_class_label, predictions[0][predicted_class_index]
-        )
 
         # Extracting the numerical value
         tensor_value = predictions[0][predicted_class_index]
