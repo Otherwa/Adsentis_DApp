@@ -87,7 +87,7 @@ def display_results(img, predictions, custom_class_labels):
         sorted_data = sorted(zipped_data, key=lambda x: x[0], reverse=True)
         emojis = ['😊', '🌟', '🎉', '🐍', '🚀', '💻', '🤖', '🌈', '🍕', '🎸']
         for pred, label in sorted_data[:6]:
-            st.warning(f"Class: {label} : {pred:.2%}", icon=random.choice(emojis))
+            st.warning(f"{label.title()} : {pred:.2%}", icon=random.choice(emojis))
 
 
 def save_to_mongodb(img_base64, predicted_class_label, confidence):
