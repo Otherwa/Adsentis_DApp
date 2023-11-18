@@ -67,7 +67,7 @@ def preprocess_image(img):
 
 
 # ! Call back issue
-@tf.function
+@tf.function(reduce_retracing=True)
 def predict_image(model, img_array):
     with st.spinner("* Wait for it..."):
         return model(img_array)
