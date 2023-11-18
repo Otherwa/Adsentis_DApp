@@ -74,7 +74,7 @@ def predict_image(model, img_array):
 
 
 def display_results(img, predictions, custom_class_labels):
-    with st.status("* Predictions", expanded=True) as status:
+    with st.status("* Predictions", expanded=False) as status:
         st.image(
             img,
             caption="Uploaded Image",
@@ -97,7 +97,7 @@ def save_to_mongodb(img_base64, predicted_class_label, confidence):
     # Connect to MongoDB
 
     # Add a button for user interaction
-    if st.button("Was the response successful? Click 'Yes' to confirm."):
+    if st.button("Was the response successful? Click to confirm."):
         # Save to MongoDB
         save_to_mongodb_impl(img_base64, predicted_class_label, confidence)
         # Update session state to indicate that the button has been clicked
@@ -129,21 +129,16 @@ def save_to_mongodb_impl(img_base64, predicted_class_label, confidence):
         st.success("* Your Response Was Successfully Recorded")
 
 def Mainpage():
-    st.set_page_config(page_title="🤡 AdSenti")
-
-    # Add content to the sidebar
-    st.sidebar.title("AdSenti")
-    st.sidebar.write("🙂 😎 🥲 😗 😎 🙂 🤣 😂 😃 😢 😊 😍 😭 🙄 😏 😔 🤔 😬 😅 😄")
-    st.sidebar.warning("* Note As per our Dataset")
-    st.sidebar.info("* Help us by testing your side of images for classifiaction")
-    
-    
+ 
     st.header("Image Sentiment Analysis")
+    st.warning("* Note As per our Dataset")
+    st.info("* Help us by testing your side of images for classifiaction")
     # ! Model 
     MODEL_PATH = "./config/model/Ads_Senti_Real_128bs_35ep.keras"
     
     model = InitModel(MODEL_PATH)
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    
     if uploaded_file is not None:
         show_img = image.load_img(uploaded_file)
         img = image.load_img(uploaded_file, target_size=(224, 224))
